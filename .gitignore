@@ -7,3 +7,6 @@ build/
 .venv/
 venv/
 .superpowers/
+.claude/
+.playwright-mcp/
+tmp_*.txt
