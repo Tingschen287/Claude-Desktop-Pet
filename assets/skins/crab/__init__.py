@@ -24,7 +24,7 @@ META = {
     "id": "crab",
 }
 
-ROWS = 11
-COLS = 16
+ROWS = 6
+COLS = 8
 
 __all__ = ["META", "ROWS", "COLS", "FRAMES", "FRAME_INTERVALS", "STATE_MOTION"]

@@ -42,8 +42,8 @@ def test_get_crab_skin():
     skin = registry.get_skin("crab")
     assert skin.id == "crab"
     assert skin.name == "螃蟹"
-    assert skin.rows == 11
-    assert skin.cols == 16
+    assert skin.rows == 6
+    assert skin.cols == 8
     assert len(skin.frames["idle"]) == 4  # blink animation
 
 
