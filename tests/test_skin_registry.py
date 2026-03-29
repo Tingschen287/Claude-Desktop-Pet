@@ -43,7 +43,7 @@ def test_get_crab_skin():
     assert skin.id == "crab"
     assert skin.name == "螃蟹"
     assert skin.rows == 6
-    assert skin.cols == 8
+    assert skin.cols == 10
     assert len(skin.frames["idle"]) == 4  # blink animation
 
 

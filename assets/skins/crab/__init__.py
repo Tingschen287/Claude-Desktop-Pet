@@ -25,6 +25,6 @@ META = {
 }
 
 ROWS = 6
-COLS = 8
+COLS = 10
 
 __all__ = ["META", "ROWS", "COLS", "FRAMES", "FRAME_INTERVALS", "STATE_MOTION"]

@@ -1,6 +1,6 @@
 # assets/skins/crab/frames.py
 # Crab skin frame data for Claude Desktop Pet.
-# Grid: 6 rows x 8 columns. Colors are "#RRGGBB" or "transparent".
+# Grid: 6 rows x 10 columns. Colors are "#RRGGBB" or "transparent".
 
 T = "transparent"  # Transparent
 O = "#FF6432"  # Orange (body) - same as default cat skin
@@ -11,44 +11,44 @@ D = "#442211"  # Dim orange (unconfigured body) - same as default cat skin
 DE = "#553322"  # Dim eye (unconfigured) - same as default cat skin
 
 
-def _make_crab_body(body=O, eye_color=B, left_eye_col=2, right_eye_col=5, bar_cols=0):
-    """Build one 6x8 crab frame."""
-    # Row 0: Body top
-    row0 = [T, T, body, body, body, body, T, T]
+def _make_crab_body(body=O, eye_color=B, left_eye_col=3, right_eye_col=6, bar_cols=0):
+    """Build one 6x10 crab frame."""
+    # Row 0: Body top (8 columns, centered)
+    row0 = [T, body, body, body, body, body, body, body, body, T]
 
-    # Row 1: Eyes
-    row1 = [body] * 8
+    # Row 1: Claws at edges + eyes
+    row1 = [body, body, body, body, body, body, body, body, body, body]
     row1[left_eye_col] = eye_color
     row1[right_eye_col] = eye_color
 
-    # Row 2: Body with progress bar (for writing state)
-    row2 = [body] * 8
+    # Row 2: Body with progress bar
+    row2 = [T, body, body, body, body, body, body, body, body, T]
     if bar_cols > 0:
         for i in range(bar_cols):
             if i < 6:
-                row2[1 + i] = G
+                row2[2 + i] = G
 
     # Row 3: Body bottom
-    row3 = [body] * 8
+    row3 = [T, body, body, body, body, body, body, body, body, T]
 
-    # Row 4: Legs
-    row4 = [T, body, T, T, T, T, body, T]
+    # Row 4: Legs (single row)
+    row4 = [T, T, body, body, T, T, body, body, T, T]
 
-    # Row 5: Legs
-    row5 = [T, body, T, T, T, T, body, T]
+    # Row 5: Empty bottom
+    row5 = [T] * 10
 
     return [row0, row1, row2, row3, row4, row5]
 
 
-def _make_claw_frame(body=O, eye_color=B, left_claw_open=True, right_claw_open=True, left_eye_col=2, right_eye_col=5):
+def _make_claw_frame(body=O, eye_color=B, left_claw_open=True, right_claw_open=True, left_eye_col=3, right_eye_col=6):
     """Build crab frame with animated claws."""
     frame = _make_crab_body(body, eye_color, left_eye_col, right_eye_col)
 
-    # Add small claws at edges of row 0
-    if left_claw_open:
-        frame[0][0] = body
-    if right_claw_open:
-        frame[0][7] = body
+    # Claws at edges of row 1
+    if not left_claw_open:
+        frame[1][0] = T
+    if not right_claw_open:
+        frame[1][9] = T
 
     return frame
 
@@ -69,18 +69,18 @@ FRAMES = {
 
     # Eyes shifting left-center-right (4 frames)
     "thinking": [
-        _make_crab_body(left_eye_col=2, right_eye_col=5),  # f0: center
-        _make_crab_body(left_eye_col=1, right_eye_col=4),   # f1: look left
-        _make_crab_body(left_eye_col=2, right_eye_col=5),  # f2: center
-        _make_crab_body(left_eye_col=3, right_eye_col=6),  # f3: look right
+        _make_crab_body(left_eye_col=3, right_eye_col=6),  # f0: center
+        _make_crab_body(left_eye_col=2, right_eye_col=5),  # f1: look left
+        _make_crab_body(left_eye_col=3, right_eye_col=6),  # f2: center
+        _make_crab_body(left_eye_col=4, right_eye_col=7),  # f3: look right
     ],
 
     # Eyes scanning left-center-right (4 frames)
     "reading": [
-        _make_crab_body(left_eye_col=2, right_eye_col=5),  # f0: center
-        _make_crab_body(left_eye_col=1, right_eye_col=4),   # f1: look left
-        _make_crab_body(left_eye_col=2, right_eye_col=5),  # f2: center
-        _make_crab_body(left_eye_col=3, right_eye_col=6),  # f3: look right
+        _make_crab_body(left_eye_col=3, right_eye_col=6),  # f0: center
+        _make_crab_body(left_eye_col=2, right_eye_col=5),  # f1: look left
+        _make_crab_body(left_eye_col=3, right_eye_col=6),  # f2: center
+        _make_crab_body(left_eye_col=4, right_eye_col=7),  # f3: look right
     ],
 
     # Progress bar sweeping body (4 frames)
