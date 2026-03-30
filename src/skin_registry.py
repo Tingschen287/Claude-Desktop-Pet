@@ -3,6 +3,7 @@
 
 import importlib
 import importlib.util
+import json
 import os
 import sys
 from pathlib import Path
@@ -119,6 +120,7 @@ class SkinRegistry:
         """Scan a directory for skin modules."""
         for item in directory.iterdir():
             if item.is_dir() and not item.name.startswith("_"):
+                # Check for Python skin module
                 skin_path = item / "__init__.py"
                 if skin_path.exists():
                     try:
@@ -127,6 +129,39 @@ class SkinRegistry:
                             self._skins[skin.id] = skin
                     except Exception as e:
                         print(f"Warning: Failed to load skin from {item}: {e}", file=sys.stderr)
+                # Check for SVG-based skin (user skins only)
+                elif not is_builtin:
+                    svg_skin = self._try_load_svg_skin(item)
+                    if svg_skin:
+                        self._skins[svg_skin.id] = svg_skin
+
+    def _try_load_svg_skin(self, skin_dir: Path) -> Optional[SkinModule]:
+        """Try to load an SVG-based skin."""
+        config_path = skin_dir / "config.json"
+        svg_files = list(skin_dir.glob("*.svg"))
+
+        if not config_path.exists() or not svg_files:
+            return None
+
+        try:
+            config = json.loads(config_path.read_text(encoding="utf-8"))
+
+            # Find base.svg or use first SVG file
+            svg_path = skin_dir / "base.svg"
+            if not svg_path.exists():
+                svg_path = svg_files[0]
+
+            # Generate skin module from SVG
+            generated_dir = skin_dir / "generated"
+            generated_dir.mkdir(parents=True, exist_ok=True)
+
+            # Use svg2skin module to generate frames
+            from svg2skin import create_skin_from_svg
+            if create_skin_from_svg(str(svg_path), config, generated_dir):
+                return self._load_skin(generated_dir)
+        except Exception as e:
+            print(f"Warning: Failed to load SVG skin from {skin_dir}: {e}", file=sys.stderr)
+            return None
 
     def _load_skin(self, skin_dir: Path) -> Optional[SkinModule]:
         """Load a skin module from a directory."""
