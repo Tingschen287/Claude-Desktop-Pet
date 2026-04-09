@@ -32,12 +32,16 @@ python -m pytest tests/test_setup_hooks.py::test_inject_is_idempotent -v
 ### Data Flow
 
 ```
-Claude Code session
+Claude Code session(s)
   → hooks fire (PreToolUse / PostToolUse / Notification / Stop)
-  → scripts/hook_writer.py reads stdin JSON, writes ~/.claude/pet-state.json
-  → src/pet.py polls pet-state.json every 500ms
+  → scripts/hook_writer.py reads stdin JSON
+  → writes ~/.claude/pet-states/{project_hash}.json (per-project state file)
+  → src/pet.py polls pet-states/ directory every 500ms
+  → aggregates all project states, picks highest priority
   → PetAnimator transitions state → PetRenderer draws pixel frames
 ```
+
+Multiple Claude sessions in different projects write to separate state files simultaneously. The pet displays the highest-priority state across all active projects (writing > executing > reading > thinking > waiting > idle).
 
 ### Key Files
 
@@ -48,7 +52,7 @@ Claude Code session
 | `src/renderer.py` | Draws a 6×8 pixel grid using `QPainter.fillRect`. Each cell is 12×12px with 1px gap. |
 | `src/notifier.py` | Thin wrapper around `plyer.notification`. All exceptions silently swallowed. |
 | `assets/frames.py` | All pixel frame data as Python lists. `FRAMES[state]` = list of frames. `FRAME_INTERVALS[state]` = ms per frame. `STATE_MOTION[state]` = window motion type. |
-| `scripts/hook_writer.py` | Called by Claude Code hooks via stdin pipe. Reads JSON payload, maps event+tool to a state string, atomically writes `pet-state.json` via `os.replace()`. Always exits 0. |
+| `scripts/hook_writer.py` | Called by Claude Code hooks via stdin pipe. Reads JSON payload, maps event+tool to a state string, atomically writes per-project state file in `~/.claude/pet-states/` via `os.replace()`. Always exits 0. |
 | `scripts/setup_hooks.py` | Injects/removes hook entries in a project's `.claude/settings.json`. Idempotent. |
 
 ### States
@@ -71,8 +75,8 @@ Claude Code session
 
 ### Runtime Files
 
-- `~/.claude/pet-state.json` — written by `hook_writer.py`, read by `pet.py`
-- `~/.claude/pet-config.json` — stores `{"project": "/abs/path"}`, written by `pet.py` on project selection
+- `~/.claude/pet-states/{hash}.json` — per-project state files written by `hook_writer.py`, polled by `pet.py`. Hash is SHA-1[:16] of the normalized project path.
+- `~/.claude/pet-config.json` — stores `{"skin": "default"}`, written by `pet.py` on skin change
 
 ### Window Motion
 
